@@ -1,6 +1,8 @@
 package crazypants.enderio.waila;
 
-import static crazypants.enderio.waila.IWailaInfoProvider.*;
+import static crazypants.enderio.waila.IWailaInfoProvider.BIT_BASIC;
+import static crazypants.enderio.waila.IWailaInfoProvider.BIT_COMMON;
+import static crazypants.enderio.waila.IWailaInfoProvider.BIT_DETAILED;
 
 import java.text.MessageFormat;
 import java.util.List;
