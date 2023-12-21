@@ -1391,6 +1391,7 @@ enderio.keybind.jump=Jump
 enderio.keybind.stepassist=Step Assist
 enderio.keybind.yetawrenchmode=Yeta Wrench Mode
 enderio.keybind.magnet=Toggle Electromagnet
+enderio.keybind.staffoftravelingtp=Travel Staff Blink
 enderio.nei.alloysmelter=Alloy Smelter
 enderio.nei.enchanter=Enchanter
 enderio.nei.sagmill=SAG Mill
