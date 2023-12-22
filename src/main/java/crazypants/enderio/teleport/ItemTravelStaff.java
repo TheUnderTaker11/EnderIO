@@ -180,11 +180,7 @@ public class ItemTravelStaff extends ItemEnergyContainer implements IItemOfTrave
 
     @Override
     public boolean isActive(EntityPlayer ep, ItemStack equipped) {
-        if (ep != null && equipped != null) {
-            return true;
-        } else {
-            return false;
-        }
+        return (ep != null && equipped != null);
     }
 
     @Override

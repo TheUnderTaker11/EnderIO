@@ -155,6 +155,7 @@ public final class Config {
 
     public static boolean travelStaffEnabled = true;
     public static boolean travelStaffAllowInBaublesSlot = true;
+    public static boolean travelStaffKeybindEnabled = true;
     public static boolean travelStaffBlinkEnabled = true;
     public static boolean travelStaffBlinkThroughSolidBlocksEnabled = true;
     public static boolean travelStaffBlinkThroughClearBlocksEnabled = true;
@@ -1175,6 +1176,12 @@ public final class Config {
                         travelStaffAllowInBaublesSlot,
                         "If true the travel staff can be put into Baubles slots (requires Baubles to be installed)")
                 .getBoolean(travelStaffAllowInBaublesSlot);
+        travelStaffKeybindEnabled = config.get(
+                sectionStaff.name,
+                "travelStaffKeybindEnabled",
+                travelStaffKeybindEnabled,
+                "If set to false: the Travel Staff Blink keybind will not be useable. (keybind allows when staff is anywhere in inventory, might not be wanted)")
+                .getBoolean(travelStaffKeybindEnabled);
         travelStaffBlinkEnabled = config
                 .get(
                         sectionStaff.name,

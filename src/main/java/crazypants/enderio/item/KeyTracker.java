@@ -8,6 +8,7 @@ import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ChatComponentTranslation;
 
 import org.lwjgl.input.Keyboard;
 
@@ -148,25 +149,31 @@ public class KeyTracker {
 
     private void handleStaffOfTravelingTP() {
         if (staffOfTravelingTPKey.isPressed()) {
-            EntityPlayer player = Minecraft.getMinecraft().thePlayer;
-            if (player != null) {
-                ItemStack travelItem = player.getHeldItem();
-                if (travelItem == null || travelItem.getItem() == null
-                        || !(travelItem.getItem() instanceof IItemOfTravel)) {
-                    travelItem = TravelController.instance.findTravelItemInInventoryOrBaubles(player);
-                }
-
-                if (travelItem != null && travelItem.getItem() != null) {
-                    long ticksSinceBlink = EnderIO.proxy.getTickCount() - lastBlickTick;
-                    if (ticksSinceBlink < 0) {
-                        lastBlickTick = -1;
+            if (Config.travelStaffKeybindEnabled) {
+                EntityPlayer player = Minecraft.getMinecraft().thePlayer;
+                if (player != null) {
+                    ItemStack travelItem = player.getHeldItem();
+                    if (travelItem == null || travelItem.getItem() == null
+                            || !(travelItem.getItem() instanceof IItemOfTravel)) {
+                        travelItem = TravelController.instance.findTravelItemInInventoryOrBaubles(player);
                     }
-                    if (ticksSinceBlink >= Config.travelStaffBlinkPauseTicks) {
-                        if (TravelController.instance.doBlink(travelItem, player)) {
-                            lastBlickTick = EnderIO.proxy.getTickCount();
+
+                    if (travelItem != null && travelItem.getItem() != null) {
+                        long ticksSinceBlink = EnderIO.proxy.getTickCount() - lastBlickTick;
+                        if (ticksSinceBlink < 0) {
+                            lastBlickTick = -1;
+                        }
+                        if (ticksSinceBlink >= Config.travelStaffBlinkPauseTicks) {
+                            if (TravelController.instance.doBlink(travelItem, player)) {
+                                lastBlickTick = EnderIO.proxy.getTickCount();
+                            }
                         }
                     }
                 }
+            } else {
+                TravelController.showMessage(
+                        Minecraft.getMinecraft().thePlayer,
+                        new ChatComponentTranslation("enderio.travelStaffKeybind.isDisabled"));
             }
         }
     }

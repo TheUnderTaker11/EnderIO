@@ -158,9 +158,11 @@ public class TravelController {
                 return null;
             case STAFF:
             case STAFF_BLINK:
-                if (equippedItem == null || equippedItem.getItem() == null
-                        || !(equippedItem.getItem() instanceof IItemOfTravel)) {
-                    equippedItem = findTravelItemInInventoryOrBaubles(toTp);
+                if (Config.travelStaffKeybindEnabled) {
+                    if (equippedItem == null || equippedItem.getItem() == null
+                            || !(equippedItem.getItem() instanceof IItemOfTravel)) {
+                        equippedItem = findTravelItemInInventoryOrBaubles(toTp);
+                    }
                 }
                 if (equippedItem == null || !(equippedItem.getItem() instanceof IItemOfTravel)) return "not staff";
                 if (!((IItemOfTravel) equippedItem.getItem()).isActive(toTp, equippedItem)) return "staff not active";
@@ -1097,7 +1099,7 @@ public class TravelController {
         return null;
     }
 
-    private static void showMessage(EntityPlayer player, IChatComponent chatComponent) {
+    public static void showMessage(EntityPlayer player, IChatComponent chatComponent) {
         if (Loader.isModLoaded("gtnhlib")) {
             if (player instanceof EntityPlayerMP) {
                 chatComponent.setChatStyle(new ChatStyle().setColor(EnumChatFormatting.WHITE));
