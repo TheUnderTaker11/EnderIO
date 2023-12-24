@@ -627,7 +627,7 @@ public class TravelController {
         }
 
         ItemStack equipped = ep.getCurrentEquippedItem();
-        if (equipped == null || equipped.getItem() == null || !(equipped.getItem() instanceof IItemOfTravel)) {
+        if (equipped == null || !(equipped.getItem() instanceof IItemOfTravel)) {
             equipped = findTravelItemInInventoryOrBaubles(ep);
         }
 
@@ -656,7 +656,7 @@ public class TravelController {
         ItemStack travelItem = null;
         for (int i = 0; i < ep.inventory.getSizeInventory(); i++) {
             ItemStack stack = ep.inventory.getStackInSlot(i);
-            if (stack != null && stack.getItem() != null && (stack.getItem() instanceof IItemOfTravel)) {
+            if (stack != null && stack.getItem() instanceof IItemOfTravel) {
                 travelItem = stack;
                 break;
             }
@@ -667,7 +667,7 @@ public class TravelController {
             if (baubles != null) {
                 for (int i = 0; i < baubles.getSizeInventory(); i++) {
                     ItemStack stack = baubles.getStackInSlot(i);
-                    if (stack != null && stack.getItem() != null && stack.getItem() instanceof IItemOfTravel) {
+                    if (stack != null && stack.getItem() instanceof IItemOfTravel) {
                         travelItem = stack;
                         break;
                     }
@@ -691,7 +691,7 @@ public class TravelController {
         int travelItemSlot = -1;
         for (int i = 0; i < ep.inventory.getSizeInventory(); i++) {
             ItemStack stack = ep.inventory.getStackInSlot(i);
-            if (stack != null && stack.getItem() != null && (stack.getItem() instanceof IItemOfTravel)) {
+            if (stack != null && (stack.getItem() instanceof IItemOfTravel)) {
                 travelItemSlot = i;
                 break;
             }
@@ -702,7 +702,7 @@ public class TravelController {
             if (baubles != null) {
                 for (int i = 0; i < baubles.getSizeInventory(); i++) {
                     ItemStack stack = baubles.getStackInSlot(i);
-                    if (stack != null && stack.getItem() != null && stack.getItem() instanceof IItemOfTravel) {
+                    if (stack != null && stack.getItem() instanceof IItemOfTravel) {
                         travelItemSlot = -(i + 2);
                         break;
                     }
@@ -769,7 +769,7 @@ public class TravelController {
         }
         int requiredPower;
         ItemStack staff = player.getCurrentEquippedItem();
-        if (staff == null || staff.getItem() == null || !(staff.getItem() instanceof IItemOfTravel)) {
+        if (staff == null || !(staff.getItem() instanceof IItemOfTravel)) {
             staff = findTravelItemInInventoryOrBaubles(player);
         }
 

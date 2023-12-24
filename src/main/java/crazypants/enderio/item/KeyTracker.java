@@ -60,7 +60,7 @@ public class KeyTracker {
 
     private final KeyBinding staffOfTravelingTPKey;
 
-    private static long lastBlickTick = -1;
+    private static long lastBlinkTick = -1;
 
     public KeyTracker() {
         glideKey = new KeyBinding(
@@ -159,13 +159,13 @@ public class KeyTracker {
                     }
 
                     if (travelItem != null && travelItem.getItem() != null) {
-                        long ticksSinceBlink = EnderIO.proxy.getTickCount() - lastBlickTick;
+                        long ticksSinceBlink = EnderIO.proxy.getTickCount() - lastBlinkTick;
                         if (ticksSinceBlink < 0) {
-                            lastBlickTick = -1;
+                            lastBlinkTick = -1;
                         }
                         if (ticksSinceBlink >= Config.travelStaffBlinkPauseTicks) {
                             if (TravelController.instance.doBlink(travelItem, player)) {
-                                lastBlickTick = EnderIO.proxy.getTickCount();
+                                lastBlinkTick = EnderIO.proxy.getTickCount();
                             }
                         }
                     }
