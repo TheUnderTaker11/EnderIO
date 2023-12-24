@@ -161,7 +161,7 @@ public final class Config {
     public static boolean travelStaffBlinkThroughClearBlocksEnabled = true;
     public static boolean travelStaffBlinkThroughUnbreakableBlocksEnabled = false;
     public static String[] travelStaffBlinkBlackList = new String[] { "minecraft:bedrock", "Thaumcraft:blockWarded" };
-    public static String travelStaffBaublesType = "AMULET";
+    public static String travelStaffBaublesType = "UNIVERSAL";
     public static float travelAnchorZoomScale = 0.2f;
     public static boolean travelStaffSearchOptimize = true;
     public static boolean validateTravelEventServerside = true;
@@ -1219,7 +1219,7 @@ public final class Config {
                 sectionStaff.name,
                 "travelStaffBaublesType",
                 travelStaffBaublesType,
-                "The BaublesType the Travel Staff should be, 'AMULET', 'RING' or 'BELT' (requires Baubles to be installed and travelStaffAllowInBaublesSlot to be on)")
+                "The BaublesType the Travel Staff should be, 'AMULET', 'RING', 'BELT', or 'UNIVERSAL' (requires Baubles to be installed and travelStaffAllowInBaublesSlot to be on)")
                 .getString();
 
         travelAnchorZoomScale = config.getFloat(
@@ -2114,7 +2114,7 @@ public final class Config {
                 sectionMagnet.name,
                 "magnetAllowDeactivatedInBaublesSlot",
                 magnetAllowDeactivatedInBaublesSlot,
-                "If true the magnet can be put into the 'amulet' Baubles slot even if switched off (requires Baubles to be installed and magnetAllowInBaublesSlot to be on)")
+                "If true the magnet can be put into a Baubles slot even if switched off (requires Baubles to be installed and magnetAllowInBaublesSlot to be on)")
                 .getBoolean(magnetAllowDeactivatedInBaublesSlot);
 
         magnetAllowPowerExtraction = config.get(
@@ -2127,7 +2127,7 @@ public final class Config {
                 sectionMagnet.name,
                 "magnetBaublesType",
                 magnetBaublesType,
-                "The BaublesType the magnet should be, 'AMULET', 'RING' or 'BELT' (requires Baubles to be installed and magnetAllowInBaublesSlot to be on)")
+                "The BaublesType the magnet should be, 'AMULET', 'RING', 'BELT', or UNIVERSAL (requires Baubles to be installed and magnetAllowInBaublesSlot to be on)")
                 .getString();
 
         useCombustionGenModel = config

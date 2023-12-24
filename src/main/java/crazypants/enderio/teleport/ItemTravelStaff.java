@@ -202,25 +202,31 @@ public class ItemTravelStaff extends ItemEnergyContainer implements IItemOfTrave
     }
 
     @Override
+    @Method(modid = "Baubles|API")
     public void onWornTick(ItemStack itemstack, EntityLivingBase player) {}
 
     @Override
+    @Method(modid = "Baubles|API")
     public void onEquipped(ItemStack itemstack, EntityLivingBase player) {}
 
     @Override
+    @Method(modid = "Baubles|API")
     public void onUnequipped(ItemStack itemstack, EntityLivingBase player) {}
 
     @Override
+    @Method(modid = "Baubles|API")
     public boolean canEquip(ItemStack itemstack, EntityLivingBase player) {
         return Config.travelStaffAllowInBaublesSlot;
     }
 
     @Override
+    @Method(modid = "Baubles|API")
     public boolean canUnequip(ItemStack itemstack, EntityLivingBase player) {
         return true;
     }
 
     @Override
+    @Method(modid = "Baubles|API")
     public boolean showDurabilityBar(ItemStack stack) {
         return Config.renderDurabilityBar && super.showDurabilityBar(stack);
     }
