@@ -160,7 +160,8 @@ public class TravelController {
             case STAFF_BLINK:
                 if (Config.travelStaffKeybindEnabled) {
                     if (equippedItem == null || equippedItem.getItem() == null
-                            || !(equippedItem.getItem() instanceof IItemOfTravel)) {
+                            || !(equippedItem.getItem() instanceof IItemOfTravel)
+                            || !((IItemOfTravel) equippedItem.getItem()).isActive(toTp, equippedItem)) {
                         equippedItem = findTravelItemInInventoryOrBaubles(toTp);
                     }
                 }
@@ -627,10 +628,11 @@ public class TravelController {
         }
 
         ItemStack equipped = ep.getCurrentEquippedItem();
-        if(checkInventoryAndBaubles) {
-	        if (equipped == null || !(equipped.getItem() instanceof IItemOfTravel)) {
-	            equipped = findTravelItemInInventoryOrBaubles(ep);
-	        }
+        if (checkInventoryAndBaubles) {
+            if (equipped == null || !(equipped.getItem() instanceof IItemOfTravel)
+                    || !((IItemOfTravel) equipped.getItem()).isActive(ep, equipped)) {
+                equipped = findTravelItemInInventoryOrBaubles(ep);
+            }
         }
         if (equipped != null) {
             if (equipped.getItem() instanceof ItemTeleportStaff) {
@@ -657,7 +659,8 @@ public class TravelController {
         ItemStack travelItem = null;
         for (int i = 0; i < ep.inventory.getSizeInventory(); i++) {
             ItemStack stack = ep.inventory.getStackInSlot(i);
-            if (stack != null && stack.getItem() instanceof IItemOfTravel) {
+            if (stack != null && stack.getItem() instanceof IItemOfTravel
+                    && ((IItemOfTravel) stack.getItem()).isActive(ep, stack)) {
                 travelItem = stack;
                 break;
             }
@@ -668,7 +671,8 @@ public class TravelController {
             if (baubles != null) {
                 for (int i = 0; i < baubles.getSizeInventory(); i++) {
                     ItemStack stack = baubles.getStackInSlot(i);
-                    if (stack != null && stack.getItem() instanceof IItemOfTravel) {
+                    if (stack != null && stack.getItem() instanceof IItemOfTravel
+                            && ((IItemOfTravel) stack.getItem()).isActive(ep, stack)) {
                         travelItem = stack;
                         break;
                     }
@@ -692,7 +696,8 @@ public class TravelController {
         int travelItemSlot = -1;
         for (int i = 0; i < ep.inventory.getSizeInventory(); i++) {
             ItemStack stack = ep.inventory.getStackInSlot(i);
-            if (stack != null && (stack.getItem() instanceof IItemOfTravel)) {
+            if (stack != null && stack.getItem() instanceof IItemOfTravel
+                    && ((IItemOfTravel) stack.getItem()).isActive(ep, stack)) {
                 travelItemSlot = i;
                 break;
             }
@@ -703,7 +708,8 @@ public class TravelController {
             if (baubles != null) {
                 for (int i = 0; i < baubles.getSizeInventory(); i++) {
                     ItemStack stack = baubles.getStackInSlot(i);
-                    if (stack != null && stack.getItem() instanceof IItemOfTravel) {
+                    if (stack != null && stack.getItem() instanceof IItemOfTravel
+                            && ((IItemOfTravel) stack.getItem()).isActive(ep, stack)) {
                         travelItemSlot = -(i + 2);
                         break;
                     }
@@ -1064,7 +1070,7 @@ public class TravelController {
 
     @SideOnly(Side.CLIENT)
     private int getMaxTravelDistanceSqForPlayer(EntityPlayer player) {
-        TravelSource source = getTravelItemTravelSource(player,false);
+        TravelSource source = getTravelItemTravelSource(player, false);
         if (source == null) {
             return TravelSource.BLOCK.getMaxDistanceTravelledSq();
         }
