@@ -152,7 +152,7 @@ public class TravelController {
                 TileEntity maybeAnchor = target.getTileEntity(toTp.worldObj);
                 if (!(maybeAnchor instanceof ITravelAccessable)) return "not anchor";
                 ITravelAccessable anchor = (ITravelAccessable) maybeAnchor;
-                if (!isValidTarget(toTp, target, TravelSource.BLOCK)) {
+                if (!anchor.canBlockBeAccessed(toTp) && isValidTarget(toTp, target, TravelSource.BLOCK)) {
                     return "not valid target";
                 }
                 return null;
@@ -160,7 +160,8 @@ public class TravelController {
             case STAFF_BLINK:
                 if (Config.travelStaffKeybindEnabled) {
                     if (equippedItem == null || equippedItem.getItem() == null
-                            || !(equippedItem.getItem() instanceof IItemOfTravel)) {
+                            || !(equippedItem.getItem() instanceof IItemOfTravel)
+                            || !((IItemOfTravel) equippedItem.getItem()).isActive(toTp, equippedItem)) {
                         equippedItem = findTravelItemInInventoryOrBaubles(toTp);
                     }
                 }
@@ -628,7 +629,8 @@ public class TravelController {
 
         ItemStack equipped = ep.getCurrentEquippedItem();
         if (checkInventoryAndBaubles) {
-            if (equipped == null || !(equipped.getItem() instanceof IItemOfTravel)) {
+            if (equipped == null || !(equipped.getItem() instanceof IItemOfTravel)
+                    || !((IItemOfTravel) equipped.getItem()).isActive(ep, equipped)) {
                 equipped = findTravelItemInInventoryOrBaubles(ep);
             }
         }
@@ -657,7 +659,8 @@ public class TravelController {
         ItemStack travelItem = null;
         for (int i = 0; i < ep.inventory.getSizeInventory(); i++) {
             ItemStack stack = ep.inventory.getStackInSlot(i);
-            if (stack != null && stack.getItem() instanceof IItemOfTravel) {
+            if (stack != null && stack.getItem() instanceof IItemOfTravel
+                    && ((IItemOfTravel) stack.getItem()).isActive(ep, stack)) {
                 travelItem = stack;
                 break;
             }
@@ -668,7 +671,8 @@ public class TravelController {
             if (baubles != null) {
                 for (int i = 0; i < baubles.getSizeInventory(); i++) {
                     ItemStack stack = baubles.getStackInSlot(i);
-                    if (stack != null && stack.getItem() instanceof IItemOfTravel) {
+                    if (stack != null && stack.getItem() instanceof IItemOfTravel
+                            && ((IItemOfTravel) stack.getItem()).isActive(ep, stack)) {
                         travelItem = stack;
                         break;
                     }
@@ -685,14 +689,15 @@ public class TravelController {
      * Baubles return value is unique/hacky, if <-1 return, then do the following to calculate the baubles slot:
      * "Math.abs(returnval)-2" <br>
      * Example: -3 return is Bauble slot 1, -2 return is Bauble slot 0
-     *
+     * 
      * @return -1 if no travel item found. 0 or more if item found in inventory. -2 or less if item found in Baubles.
      */
     public int findTravelItemSlotInInventoryOrBaubles(EntityPlayer ep) {
         int travelItemSlot = -1;
         for (int i = 0; i < ep.inventory.getSizeInventory(); i++) {
             ItemStack stack = ep.inventory.getStackInSlot(i);
-            if (stack != null && (stack.getItem() instanceof IItemOfTravel)) {
+            if (stack != null && stack.getItem() instanceof IItemOfTravel
+                    && ((IItemOfTravel) stack.getItem()).isActive(ep, stack)) {
                 travelItemSlot = i;
                 break;
             }
@@ -703,7 +708,8 @@ public class TravelController {
             if (baubles != null) {
                 for (int i = 0; i < baubles.getSizeInventory(); i++) {
                     ItemStack stack = baubles.getStackInSlot(i);
-                    if (stack != null && stack.getItem() instanceof IItemOfTravel) {
+                    if (stack != null && stack.getItem() instanceof IItemOfTravel
+                            && ((IItemOfTravel) stack.getItem()).isActive(ep, stack)) {
                         travelItemSlot = -(i + 2);
                         break;
                     }
