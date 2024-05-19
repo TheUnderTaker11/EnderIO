@@ -152,7 +152,7 @@ public class TravelController {
                 TileEntity maybeAnchor = target.getTileEntity(toTp.worldObj);
                 if (!(maybeAnchor instanceof ITravelAccessable)) return "not anchor";
                 ITravelAccessable anchor = (ITravelAccessable) maybeAnchor;
-                if (!anchor.canBlockBeAccessed(toTp) && isValidTarget(toTp, target, TravelSource.BLOCK)) {
+                if (!isValidTarget(toTp, target, TravelSource.BLOCK)) {
                     return "not valid target";
                 }
                 return null;

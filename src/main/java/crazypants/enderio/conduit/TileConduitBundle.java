@@ -405,6 +405,29 @@ public class TileConduitBundle extends TileEntityEio implements IConduitBundle {
     }
 
     @Override
+    public void replaceConduit(IConduit original, IConduit replacement) {
+        if (worldObj.isRemote) {
+            return;
+        }
+        // If you're wondering why I am not using conduit.writeToNBT, it is because there is some data that should not
+        // persist, some of which causes crashes with energy conduits.
+        NBTTagCompound[] originalData = new NBTTagCompound[ForgeDirection.values().length];
+        for (ForgeDirection conduitConnection : original.getExternalConnections()) {
+            NBTTagCompound tag = new NBTTagCompound();
+            original.writeConnectionSettingsToNBT(conduitConnection, tag);
+            originalData[conduitConnection.ordinal()] = tag;
+        }
+        removeConduit(original);
+        addConduit(replacement);
+        for (int i = 0; i < originalData.length; i++) {
+            NBTTagCompound nbt = originalData[i];
+            if (nbt != null) {
+                replacement.readConduitSettingsFromNBT(ForgeDirection.values()[i], nbt);
+            }
+        }
+    }
+
+    @Override
     public void removeConduit(IConduit conduit) {
         if (conduit != null) {
             removeConduit(conduit, true);
@@ -428,7 +451,7 @@ public class TileConduitBundle extends TileEntityEio implements IConduitBundle {
         if (worldObj.isRemote) {
             return;
         }
-        List<IConduit> copy = new ArrayList<IConduit>(conduits);
+        List<IConduit> copy = new ArrayList<>(conduits);
         for (IConduit con : copy) {
             removeConduit(con, false);
         }

@@ -29,6 +29,7 @@ import com.enderio.core.client.render.RenderUtil;
 import com.enderio.core.common.util.BlockCoord;
 import com.enderio.core.common.util.IBlockAccessWrapper;
 import com.google.common.collect.Lists;
+import com.gtnewhorizons.angelica.api.ThreadSafeISBRH;
 
 import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
 import cpw.mods.fml.relauncher.Side;
@@ -51,22 +52,27 @@ import crazypants.enderio.config.Config;
 import crazypants.util.RenderPassHelper;
 
 @SideOnly(Side.CLIENT)
+@ThreadSafeISBRH(perThread = false)
 public class ConduitBundleRenderer extends TileEntitySpecialRenderer implements ISimpleBlockRenderingHandler {
 
     public ConduitBundleRenderer(float conduitScale) {}
+
+    public ConduitBundleRenderer() {}
 
     @Override
     public void renderTileEntityAt(TileEntity te, double x, double y, double z, float partialTick) {
         IConduitBundle bundle = (IConduitBundle) te;
         EntityClientPlayerMP player = Minecraft.getMinecraft().thePlayer;
-        if (bundle.hasFacade() && bundle.getFacadeId().isOpaqueCube() && !ConduitUtil.isFacadeHidden(bundle, player)) {
+        if (bundle == null || (bundle.hasFacade() && bundle.getFacadeId().isOpaqueCube()
+                && !ConduitUtil.isFacadeHidden(bundle, player))) {
             return;
         }
+        final Tessellator tessellator = Tessellator.instance;
 
         float brightness = -1;
         for (IConduit con : bundle.getConduits()) {
             if (ConduitUtil.renderConduit(player, con)) {
-                ConduitRenderer renderer = EnderIO.proxy.getRendererForConduit(con);
+                final ConduitRenderer renderer = con.getRenderer();
                 if (renderer.isDynamic()) {
                     if (brightness == -1) {
                         BlockCoord loc = bundle.getLocation();
@@ -84,7 +90,7 @@ public class ConduitBundleRenderer extends TileEntitySpecialRenderer implements 
                         GL11.glPushMatrix();
                         GL11.glTranslated(x, y, z);
 
-                        Tessellator.instance.startDrawingQuads();
+                        tessellator.startDrawingQuads();
                     }
                     renderer.renderDynamicEntity(this, bundle, con, x, y, z, partialTick, brightness);
                 }
@@ -92,7 +98,7 @@ public class ConduitBundleRenderer extends TileEntitySpecialRenderer implements 
         }
 
         if (brightness != -1) {
-            Tessellator.instance.draw();
+            tessellator.draw();
 
             GL11.glShadeModel(GL11.GL_FLAT);
             GL11.glPopMatrix();
@@ -104,6 +110,7 @@ public class ConduitBundleRenderer extends TileEntitySpecialRenderer implements 
     public boolean renderWorldBlock(IBlockAccess world, int x, int y, int z, Block block, int modelId,
             RenderBlocks rb) {
 
+        final Tessellator tessellator = Tessellator.instance;
         int pass = RenderPassHelper.getBlockRenderPass();
         if (pass == 1) {
             // If the MC renderer is told that an alpha pass is required ( see
@@ -113,10 +120,10 @@ public class ConduitBundleRenderer extends TileEntitySpecialRenderer implements 
             // around is to ensure we always render something in this pass. Throwing
             // in a polygon with a 0 area does the job
             // See: https://github.com/MinecraftForge/MinecraftForge/issues/981
-            Tessellator.instance.addVertexWithUV(x, y, z, 0, 0);
-            Tessellator.instance.addVertexWithUV(x, y, z, 0, 0);
-            Tessellator.instance.addVertexWithUV(x, y, z, 0, 0);
-            Tessellator.instance.addVertexWithUV(x, y, z, 0, 0);
+            tessellator.addVertexWithUV(x, y, z, 0, 0);
+            tessellator.addVertexWithUV(x, y, z, 0, 0);
+            tessellator.addVertexWithUV(x, y, z, 0, 0);
+            tessellator.addVertexWithUV(x, y, z, 0, 0);
         }
 
         IConduitBundle bundle = (IConduitBundle) world.getTileEntity(x, y, z);
@@ -125,7 +132,7 @@ public class ConduitBundleRenderer extends TileEntitySpecialRenderer implements 
         boolean renderedFacade = renderFacade(x, y, z, pass, rb, bundle, player);
         boolean renderConduit = !renderedFacade || ConduitUtil.isFacadeHidden(bundle, player);
 
-        if (renderConduit && (pass == 0 || rb.overrideBlockTexture != null)) {
+        if (bundle != null && renderConduit && (pass == 0 || rb.overrideBlockTexture != null)) {
             BlockCoord loc = bundle.getLocation();
             float brightness;
             if (!Config.updateLightingWhenHidingFacades && bundle.hasFacade()
@@ -138,21 +145,34 @@ public class ConduitBundleRenderer extends TileEntitySpecialRenderer implements 
             return true;
         }
 
-        return renderedFacade || (bundle.hasFacade() && !bundle.getFacadeId().isOpaqueCube());
+        return renderedFacade || (bundle != null && bundle.hasFacade() && !bundle.getFacadeId().isOpaqueCube());
     }
+
+    private static final ThreadLocal<BlockConduitFacade> facade = ThreadLocal.withInitial(() -> {
+        try {
+            return EnderIO.blockConduitFacade.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+
+    });
 
     private boolean renderFacade(int x, int y, int z, int pass, RenderBlocks rb, IConduitBundle bundle,
             EntityClientPlayerMP player) {
         boolean res = false;
+        if (bundle == null) {
+            return false;
+        }
+        final Tessellator tessellator = Tessellator.instance;
         if (bundle.hasFacade()) {
             res = true;
             Block facadeId = bundle.getFacadeId();
             if (ConduitUtil.isFacadeHidden(bundle, player)) {
-                Tessellator.instance.setColorOpaque_F(1, 1, 1);
+                tessellator.setColorOpaque_F(1, 1, 1);
                 bundle.setFacadeId(null, false);
                 bundle.setFacadeRenderAs(FacadeRenderState.WIRE_FRAME);
 
-                BlockConduitFacade facb = EnderIO.blockConduitFacade;
+                BlockConduitFacade facb = facade.get();
                 facb.setBlockOverride(bundle);
                 facb.setBlockBounds(0, 0, 0, 1, 1, 1);
                 if (!rb.hasOverrideBlockTexture()) {
@@ -192,20 +212,23 @@ public class ConduitBundleRenderer extends TileEntitySpecialRenderer implements 
     public void renderConduits(IConduitBundle bundle, double x, double y, double z, float partialTick, float brightness,
             RenderBlocks rb) {
 
-        Tessellator tessellator = Tessellator.instance;
+        if (bundle == null) return;
+
+        final Tessellator tessellator = Tessellator.instance;
+        final CubeRenderer cr = CubeRenderer.get();
         tessellator.setColorOpaque_F(1, 1, 1);
         tessellator.addTranslation((float) x, (float) y, (float) z);
 
         // Conduits
-        Set<ForgeDirection> externals = new HashSet<ForgeDirection>();
+        Set<ForgeDirection> externals = new HashSet<>();
         EntityClientPlayerMP player = Minecraft.getMinecraft().thePlayer;
 
-        List<BoundingBox> wireBounds = new ArrayList<BoundingBox>();
+        List<BoundingBox> wireBounds = new ArrayList<>();
 
         for (IConduit con : bundle.getConduits()) {
 
             if (ConduitUtil.renderConduit(player, con)) {
-                ConduitRenderer renderer = EnderIO.proxy.getRendererForConduit(con);
+                final ConduitRenderer renderer = con.getRenderer();
                 renderer.renderEntity(this, bundle, con, x, y, z, partialTick, brightness, rb);
                 Set<ForgeDirection> extCons = con.getExternalConnections();
                 for (ForgeDirection dir : extCons) {
@@ -225,7 +248,8 @@ public class ConduitBundleRenderer extends TileEntitySpecialRenderer implements 
         // Internal conectors between conduits
         List<CollidableComponent> connectors = bundle.getConnectors();
         List<CollidableComponent> rendered = Lists.newArrayList();
-        for (CollidableComponent component : connectors) {
+        for (int i = 0; i < connectors.size(); i++) {
+            final CollidableComponent component = connectors.get(i);
             if (component.conduitType != null) {
                 IConduit conduit = bundle.getConduit(component.conduitType);
                 if (conduit != null) {
@@ -243,12 +267,12 @@ public class ConduitBundleRenderer extends TileEntitySpecialRenderer implements 
                                 if (r.component.conduitType == component.conduitType
                                         && !rendered.contains(r.component)) {
                                     rendered.add(r.component);
-                                    CubeRenderer.render(component.bound, rb.overrideBlockTexture, true);
+                                    cr.render(component.bound, rb.overrideBlockTexture, true);
                                 }
                             }
                         } else {
                             tessellator.setBrightness((int) (brightness));
-                            CubeRenderer.render(component.bound, conduit.getTextureForState(component), true);
+                            cr.render(component.bound, conduit.getTextureForState(component), true);
                         }
                     } else {
                         wireBounds.add(component.bound);
@@ -257,16 +281,18 @@ public class ConduitBundleRenderer extends TileEntitySpecialRenderer implements 
 
             } else if (ConduitUtil.getDisplayMode(player) == ConduitDisplayMode.ALL && !rb.hasOverrideBlockTexture()) {
                 IIcon tex = EnderIO.blockConduitBundle.getConnectorIcon(component.data);
-                CubeRenderer.render(component.bound, tex);
+                cr.render(component.bound, tex);
             }
         }
         // render these after the 'normal' conduits so help with proper blending
-        for (BoundingBox wireBound : wireBounds) {
-            Tessellator.instance.setColorRGBA_F(1, 1, 1, 0.25f);
-            CubeRenderer.render(wireBound, EnderIO.blockConduitFacade.getIcon(0, 0));
+        BlockConduitFacade facb = facade.get();
+        for (int i = 0; i < wireBounds.size(); i++) {
+            final BoundingBox wireBound = wireBounds.get(i);
+            tessellator.setColorRGBA_F(1, 1, 1, 0.25f);
+            cr.render(wireBound, facb.getIcon(0, 0));
         }
 
-        Tessellator.instance.setColorRGBA_F(1, 1, 1, 1f);
+        tessellator.setColorRGBA_F(1, 1, 1, 1f);
         // External connection terminations
         if (rb.overrideBlockTexture == null) {
             for (ForgeDirection dir : externals) {
@@ -279,8 +305,10 @@ public class ConduitBundleRenderer extends TileEntitySpecialRenderer implements 
     private void renderExternalConnection(ForgeDirection dir) {
         IIcon tex = EnderIO.blockConduitBundle.getConnectorIcon(ConduitConnectorType.EXTERNAL);
         BoundingBox[] bbs = ConduitGeometryUtil.instance.getExternalConnectorBoundingBoxes(dir);
-        for (BoundingBox bb : bbs) {
-            CubeRenderer.render(bb, tex, true);
+        final CubeRenderer cr = CubeRenderer.get();
+        for (int i = 0; i < bbs.length; i++) {
+            final BoundingBox bb = bbs[i];
+            cr.render(bb, tex, true);
         }
     }
 

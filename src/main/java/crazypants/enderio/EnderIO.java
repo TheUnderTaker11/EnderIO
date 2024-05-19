@@ -186,14 +186,14 @@ import crazypants.util.EE3Util;
         modid = MODID,
         name = MOD_NAME,
         version = VERSION,
-        dependencies = "after:endercore;after:MineFactoryReloaded;after:Forestry;after:Waila@[1.5.8,);after:Thaumcraft;after:appliedenergistics2@[rv2-beta-8,);after:chisel",
+        dependencies = "required-after:CoFHLib@(1.0.3B3,);after:endercore;after:MineFactoryReloaded;after:Forestry;after:Waila@[1.5.8,);after:Thaumcraft;after:appliedenergistics2@[rv2-beta-8,);after:chisel",
         guiFactory = "crazypants.enderio.config.ConfigFactoryEIO")
 public class EnderIO {
 
     public static final String MODID = "EnderIO";
     public static final String DOMAIN = MODID.toLowerCase(Locale.US);
     public static final String MOD_NAME = "Ender IO";
-    public static final String VERSION = "GRADLETOKEN_VERSION";
+    public static final String VERSION = Tags.VERSION;
 
     @Instance(MODID)
     public static EnderIO instance;
