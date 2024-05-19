@@ -154,8 +154,7 @@ public class KeyTracker {
                 if (player != null) {
                     ItemStack travelItem = player.getHeldItem();
                     if (travelItem == null || travelItem.getItem() == null
-                            || !(travelItem.getItem() instanceof IItemOfTravel)
-                            || !((IItemOfTravel) travelItem.getItem()).isActive(player, travelItem)) {
+                            || !(travelItem.getItem() instanceof IItemOfTravel)) {
                         travelItem = TravelController.instance.findTravelItemInInventoryOrBaubles(player);
                     }
 
